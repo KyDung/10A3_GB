@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nhập Tên Để Mở Thư</title>
+    <link rel="stylesheet" href="./wish-pages.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="form-card">
+        <p class="eyebrow">Lời nhắn riêng</p>
+        <h1 class="section-title">Nhập đầy đủ họ và tên để mở lá thư dành cho bạn</h1>
+        <p class="section-copy">
+          Bạn có thể nhập hoa hay thường, có dấu hay không đều được. Hệ thống
+          sẽ tự động chuẩn hóa tên trước khi tìm lời chúc.
+        </p>
+
+        <form id="wishForm">
+          <input
+            id="fullName"
+            class="form-input"
+            type="text"
+            name="full_name"
+            autocomplete="name"
+            placeholder="Ví dụ: Nguyễn Bảo Châu"
+            required
+          />
+          <div id="statusNote" class="status-note"></div>
+          <div class="action-row">
+            <button class="button-button primary" type="submit">
+              Xem lá thư của tôi
+            </button>
+            <a class="button-link secondary" href="./wish-qr.html">
+              Quay lại QR
+            </a>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="./wish-data.js"></script>
+    <script>
+      const form = document.getElementById("wishForm");
+      const input = document.getElementById("fullName");
+      const statusNote = document.getElementById("statusNote");
+      let wishEntries = [];
+
+      async function boot() {
+        try {
+          wishEntries = await window.WishData.loadWishEntries();
+        } catch (error) {
+          statusNote.textContent =
+            "Chưa tải được dữ liệu lời chúc. Vui lòng thử lại sau.";
+        }
+      }
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const rawName = input.value.trim();
+
+        if (!rawName) {
+          statusNote.textContent = "Bạn cần nhập đầy đủ họ và tên trước đã.";
+          return;
+        }
+
+        const matchedWish = window.WishData.findWishByName(wishEntries, rawName);
+
+        if (!matchedWish) {
+          statusNote.textContent =
+            "Không tìm thấy lời chúc phù hợp. Bạn thử nhập đầy đủ họ và tên hơn nhé.";
+          return;
+        }
+
+        window.location.href = `./wish-letter.html?name=${encodeURIComponent(
+          matchedWish.name,
+        )}`;
+      });
+
+      boot();
+    </script>
+  </body>
+</html>

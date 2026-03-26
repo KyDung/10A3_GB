@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slideshow Kỷ Niệm</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 15px;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        height: calc(100vh - 30px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #da2032 0%, #8b0000 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        margin-bottom: 8px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .header p {
+        font-size: 14px;
+        opacity: 0.95;
+      }
+
+      .progress-bar {
+        background: #e0e0e0;
+        height: 6px;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .progress-fill {
+        background: linear-gradient(90deg, #ffd700 0%, #ffed4e 100%);
+        height: 100%;
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+
+      .content {
+        padding: 20px;
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .question-container {
+        display: none;
+        animation: fadeIn 0.5s ease;
+        flex: 1;
+        min-height: 400px;
+      }
+
+      .question-container.active {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        min-height: 400px;
+      }
+
+      /* Left side - Image */
+      .question-left {
+        flex: 0 0 45%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Right side - Content */
+      .question-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        min-height: 0;
+        padding-bottom: 20px;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .question-number {
+        color: #da2032;
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 15px;
+        flex-shrink: 0;
+      }
+
+      .image-container {
+        width: 100%;
+        height: 300px;
+        max-height: 350px;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .caption {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        color: #333;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #da2032;
+        flex-shrink: 0;
+      }
+
+      .blank {
+        display: inline-block;
+        min-width: 120px;
+        padding: 4px 12px;
+        background: #fff3cd;
+        border: 2px dashed #ffc107;
+        border-radius: 5px;
+        font-weight: bold;
+        color: #856404;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-shrink: 0;
+      }
+
+      .option {
+        padding: 12px 16px;
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 50px;
+      }
+
+      .option:hover {
+        border-color: #da2032;
+        background: #fff5f5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(218, 32, 50, 0.2);
+      }
+
+      .option.selected {
+        background: #da2032;
+        color: white;
+        border-color: #da2032;
+      }
+
+      .option.correct {
+        background: #28a745;
+        color: white;
+        border-color: #28a745;
+      }
+
+      .option.incorrect {
+        background: #dc3545;
+        color: white;
+        border-color: #dc3545;
+      }
+
+      .button-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 15px;
+        flex-shrink: 0;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+      }
+
+      .btn-primary {
+        background: #da2032;
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: #b01828;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(218, 32, 50, 0.3);
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        background: #5a6268;
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .feedback {
+        padding: 12px;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-weight: bold;
+        text-align: center;
+        display: none;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+
+      .feedback.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .feedback.correct {
+        background: #d4edda;
+        color: #155724;
+        border: 2px solid #c3e6cb;
+      }
+
+      .feedback.incorrect {
+        background: #f8d7da;
+        color: #721c24;
+        border: 2px solid #f5c6cb;
+      }
+
+      .reflection-container {
+        display: none;
+      }
+
+      .reflection-container.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .reflection-intro {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        border-left: 5px solid #da2032;
+      }
+
+      .reflection-intro h2 {
+        color: #da2032;
+        margin-bottom: 15px;
+        font-size: 24px;
+      }
+
+      .reflection-intro p {
+        color: #555;
+        font-size: 16px;
+        line-height: 1.8;
+      }
+
+      .score-display {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+      }
+
+      .score-display h3 {
+        font-size: 22px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .score-display .score {
+        font-size: 48px;
+        font-weight: bold;
+        color: #da2032;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 300px;
+        padding: 20px;
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        font-size: 16px;
+        font-family: inherit;
+        line-height: 1.8;
+        resize: vertical;
+        transition: border-color 0.3s ease;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #da2032;
+        box-shadow: 0 0 0 3px rgba(218, 32, 50, 0.1);
+      }
+
+      .char-count {
+        text-align: right;
+        color: #6c757d;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      .reflection-question {
+        background: linear-gradient(135deg, #fff8e7 0%, #ffe8cc 100%);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        border: 2px solid #ffd700;
+      }
+
+      .reflection-question-content {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .reflection-question-left {
+        flex: 0 0 200px;
+      }
+
+      .reflection-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+        border: 3px solid #ffd700;
+      }
+
+      .reflection-question-right {
+        flex: 1;
+      }
+
+      .reflection-title {
+        color: #da2032;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .reflection-text {
+        color: #333;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 12px;
+        font-weight: 500;
+      }
+
+      .reflection-note {
+        color: #666;
+        font-size: 14px;
+        font-style: italic;
+        padding: 8px 12px;
+        background: rgba(255, 215, 0, 0.2);
+        border-radius: 8px;
+        border-left: 3px solid #ffd700;
+      }
+
+      @media (max-width: 768px) {
+        .reflection-question-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .reflection-question-left {
+          flex: 0 0 auto;
+        }
+
+        .reflection-image {
+          width: 250px;
+          height: 180px;
+        }
+      }
+
+      .completion-screen {
+        display: none;
+        text-align: center;
+        padding: 40px;
+      }
+
+      .completion-screen.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .completion-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+      }
+
+      .completion-screen h2 {
+        color: #da2032;
+        font-size: 32px;
+        margin-bottom: 20px;
+      }
+
+      .completion-screen p {
+        font-size: 18px;
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 30px;
+      }
+
+      /* Credits Slideshow Styles */
+      .credits-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          #0f1419 0%,
+          #1a1a2e 50%,
+          #16213e 100%
+        );
+        z-index: 1000;
+        overflow: hidden;
+      }
+
+      .credits-container.active {
+        display: block;
+        animation: fadeIn 0.8s ease;
+      }
+
+      .credits-content {
+        position: relative;
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0;
+      }
+
+      .credits-content.start-animation {
+        animation: slideDown var(--slide-duration, 90s) linear forwards;
+      }
+
+      @keyframes slideDown {
+        0% {
+          transform: translateY(0);
+        }
+        100% {
+          transform: translateY(var(--slide-end, -1400vh));
+        }
+      }
+
+      .credits-title {
+        color: #ffd700;
+        font-size: 36px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 50px;
+        margin-top: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        padding: 0 20px;
+        position: relative;
+        z-index: 10;
+      }
+
+      .credits-title.start-animation {
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes glow {
+        from {
+          text-shadow:
+            0 0 20px #ffd700,
+            0 0 30px #ffd700,
+            0 0 40px #ffd700;
+        }
+        to {
+          text-shadow:
+            0 0 10px #ffd700,
+            0 0 20px #ffd700,
+            0 0 30px #ffd700;
+        }
+      }
+
+      .credits-slide {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        opacity: 1;
+        min-height: 100vh;
+        width: 100%;
+      }
+
+      .credits-slide.start-animation {
+        animation: none;
+      }
+
+      .credits-image {
+        width: 100%;
+        max-width: 800px;
+        height: auto;
+        max-height: 90vh;
+        object-fit: cover;
+        border-radius: 16px;
+        border: 3px solid transparent;
+        background:
+          linear-gradient(#0000, #0000) padding-box,
+          linear-gradient(
+              135deg,
+              #fff7bf 0%,
+              #ffd700 35%,
+              #ffbf00 65%,
+              #ffe680 100%
+            )
+            border-box;
+        box-shadow:
+          0 10px 30px rgba(0, 0, 0, 0.35),
+          0 0 20px rgba(255, 215, 0, 0.35),
+          0 0 40px rgba(255, 193, 7, 0.18);
+        display: block;
+      }
+
+      .credits-text-slide {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .credits-text-slide p {
+        font-size: clamp(30px, 5vw, 58px);
+        font-weight: 700;
+        color: #ffe680;
+        letter-spacing: 1px;
+        text-shadow:
+          0 0 12px rgba(255, 215, 0, 0.6),
+          0 0 28px rgba(255, 215, 0, 0.3),
+          2px 2px 8px rgba(0, 0, 0, 0.55);
+      }
+
+      .credits-text-slide.end-slide p {
+        font-size: clamp(28px, 4.8vw, 52px);
+      }
+
+      .credits-caption {
+        color: white;
+        font-size: 22px;
+        text-align: center;
+        max-width: 700px;
+        line-height: 1.6;
+        padding: 0 20px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+      }
+
+      .credits-skip {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: rgba(218, 32, 50, 0.8);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1001;
+      }
+
+      .credits-skip:hover {
+        background: rgba(218, 32, 50, 1);
+        transform: scale(1.05);
+      }
+
+      .credits-music-toggle {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        background: rgba(255, 215, 0, 0.8);
+        color: #333;
+        border: none;
+        padding: 12px 15px;
+        border-radius: 25px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1001;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .credits-music-toggle:hover {
+        background: rgba(255, 215, 0, 1);
+        transform: scale(1.05);
+      }
+
+      .credits-music-toggle.muted {
+        background: rgba(128, 128, 128, 0.8);
+      }
+
+      .credits-music-toggle.muted:hover {
+        background: rgba(128, 128, 128, 1);
+      }
+
+      .intro-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+          radial-gradient(
+            circle at top,
+            rgba(255, 215, 0, 0.08),
+            transparent 45%
+          ),
+          linear-gradient(160deg, #090d14 0%, #171b28 50%, #05070b 100%);
+        padding: 20px;
+      }
+
+      .intro-screen.hidden {
+        display: none;
+      }
+
+      .intro-frame {
+        width: min(920px, 95vw);
+        border-radius: 24px;
+        padding: 18px;
+        border: 3px solid #ffd700;
+        box-shadow:
+          0 0 30px rgba(255, 215, 0, 0.35),
+          0 20px 45px rgba(0, 0, 0, 0.55);
+        background: linear-gradient(
+          135deg,
+          rgba(25, 27, 40, 0.9),
+          rgba(9, 11, 18, 0.95)
+        );
+      }
+
+      .intro-image-wrap {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .intro-image {
+        display: block;
+        width: 100%;
+        height: min(62vh, 560px);
+        object-fit: cover;
+        filter: brightness(0.8);
+      }
+
+      .intro-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.65),
+          rgba(0, 0, 0, 0.25)
+        );
+        padding: 20px;
+      }
+
+      .intro-title {
+        color: #fdf2b8;
+        text-align: center;
+        font-size: clamp(24px, 4vw, 44px);
+        text-shadow: 0 3px 14px rgba(0, 0, 0, 0.7);
+        letter-spacing: 1px;
+      }
+
+      .play-btn {
+        border: none;
+        border-radius: 999px;
+        padding: 14px 32px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #1c1300;
+        background: linear-gradient(135deg, #ffd700, #ffc107);
+        cursor: pointer;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+        box-shadow: 0 8px 24px rgba(255, 193, 7, 0.35);
+      }
+
+      .play-btn:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 12px 28px rgba(255, 193, 7, 0.5);
+      }
+
+      .play-note {
+        color: #e6e6e6;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .quiz-music-toggle {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: rgba(218, 32, 50, 0.8);
+        color: white;
+        border: none;
+        padding: 10px 12px;
+        border-radius: 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 100;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .quiz-music-toggle:hover {
+        background: rgba(218, 32, 50, 1);
+        transform: scale(1.05);
+      }
+
+      .quiz-music-toggle.muted {
+        background: rgba(128, 128, 128, 0.8);
+      }
+
+      .quiz-music-toggle.muted:hover {
+        background: rgba(128, 128, 128, 1);
+      }
+
+      @media (max-width: 768px) {
+        .content {
+          padding: 15px;
+        }
+
+        .header h1 {
+          font-size: 20px;
+        }
+
+        .question-container.active {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .question-left {
+          flex: 0 0 auto;
+        }
+
+        .image-container {
+          height: 250px;
+          max-height: 250px;
+        }
+
+        .options {
+          grid-template-columns: 1fr;
+        }
+
+        .button-container {
+          flex-direction: column;
+        }
+
+        .caption {
+          font-size: 14px;
+          padding: 12px;
+        }
+
+        .credits-image {
+          width: min(92vw, 620px);
+          height: auto;
+          max-height: 72vh;
+        }
+
+        .credits-caption {
+          font-size: 18px;
+          max-width: 350px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          height: 100vh;
+          border-radius: 0;
+        }
+
+        body {
+          padding: 0;
+        }
+
+        .image-container {
+          height: 200px;
+          max-height: 200px;
+        }
+
+        .credits-image {
+          width: min(88vw, 360px);
+          height: auto;
+          max-height: 64vh;
+        }
+
+        .credits-caption {
+          font-size: 16px;
+          max-width: 280px;
+        }
+
+        .intro-image {
+          height: 52vh;
+        }
+
+        .play-btn {
+          font-size: 18px;
+          padding: 12px 26px;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="./test-vivid.css" />
+  </head>
+  <body>
+    <div class="intro-screen" id="introScreen">
+      <div class="intro-frame">
+        <div class="intro-image-wrap">
+          <img
+            class="intro-image"
+            id="introImage"
+            src="./img/LastIMG.jpg"
+            alt="Ảnh mở đầu"
+          />
+          <div class="intro-overlay">
+            <h1 class="intro-title">Thước Phim Thanh Xuân Cùng 10A3</h1>
+            <button class="play-btn" onclick="enterShow()">Play</button>
+            <p class="play-note">Bấm Play để bắt đầu slideshow và phát nhạc</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="credits-container active" id="creditsContainer">
+      <audio id="creditsMusic" loop>
+        <source src="./music/music_bg.mp3" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+
+      <div class="credits-content">
+        <div class="credits-slide credits-text-slide intro-slide">
+          <p>Slide show những kỷ niệm</p>
+        </div>
+
+        <div class="credits-slide">
+          <video class="credits-image" muted autoplay playsinline loop>
+            <source src="./img/7661595846418.mp4" type="video/mp4" />
+          </video>
+        </div>
+
+        <div class="credits-slide">
+          <img src="./img/LastIMG.jpg" alt="" class="credits-image" />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585327289_4988fd2287bca72fd6df9e06313a4f8f.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585328839_c602003bc243f642a6ca7390dcbd33b6.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585336839_4417a945b6aa77b8d577e04581a5f216.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585350478_f1ac00856d63866e9b4d00a36b60b1e9.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585363415_96eeb10b8ac0240f470b9c6347c476e6.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585369827_f77017d09392184edfd72d898ed7f45c.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585377275_fe7f0ccf6379e63913b19df8393ed8f7.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585382559_b5eb81fbc2dc27027ccca49e53bfac83.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585386873_4a5f669b9c1224091a322d4d3f0d5f4e.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585397963_751e46e2e3022f1768dea41b3b4f9294.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585399080_be92b614299d214d37dc39f0beca1549.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide">
+          <img
+            src="./img/z7661585409245_bc843c0bd4720a43478064673244d5c3.jpg"
+            alt=""
+            class="credits-image"
+          />
+        </div>
+
+        <div class="credits-slide credits-text-slide end-slide">
+          <p>Cảm ơn và tạm biệt 10A3!</p>
+        </div>
+      </div>
+      <button class="credits-skip" onclick="restartSlideshow()">
+        Xem lại từ đầu
+      </button>
+      <button
+        class="credits-music-toggle"
+        id="musicToggle"
+        onclick="toggleMusic()"
+      >
+        🔊
+      </button>
+      <button
+        class="next-stage-btn"
+        id="nextStageBtn"
+        onclick="goToWishPortal()"
+      >
+        Tiếp theo
+      </button>
+    </div>
+
+    <script>
+      function playSlideVideos() {
+        const videos = document.querySelectorAll(".credits-content video");
+        videos.forEach((video) => {
+          video.currentTime = 0;
+          video.play().catch(() => {});
+        });
+      }
+
+      function updateSlideshowMetrics() {
+        const creditsContent = document.querySelector(".credits-content");
+        const slides = Array.from(document.querySelectorAll(".credits-slide"));
+
+        if (!creditsContent || slides.length === 0) {
+          return null;
+        }
+
+        const lastSlide = slides[slides.length - 1];
+        const viewportHeight = window.innerHeight;
+        const lastSlideOffset = lastSlide.offsetTop;
+        const centeredOffset =
+          lastSlideOffset - (viewportHeight - lastSlide.offsetHeight) / 2;
+        const finalOffset = Math.max(centeredOffset, 0);
+        const durationPerSlide = 5.8;
+
+        creditsContent.style.setProperty("--slide-end", `-${finalOffset}px`);
+        creditsContent.style.setProperty(
+          "--slide-duration",
+          `${Math.max(slides.length - 1, 1) * durationPerSlide}s`,
+        );
+
+        return { creditsContent };
+      }
+
+      function startSlideshow() {
+        const metrics = updateSlideshowMetrics();
+        const creditsContent = metrics?.creditsContent;
+
+        if (!creditsContent) {
+          return;
+        }
+
+        creditsContent.classList.remove("start-animation");
+
+        void creditsContent.offsetWidth;
+
+        creditsContent.classList.add("start-animation");
+        playSlideVideos();
+      }
+
+      function playCreditsMusic() {
+        const music = document.getElementById("creditsMusic");
+        music.volume = 0.3;
+        return music.play();
+      }
+
+      function restartSlideshow() {
+        const music = document.getElementById("creditsMusic");
+        const nextStageBtn = document.getElementById("nextStageBtn");
+        music.currentTime = 0;
+        nextStageBtn.classList.add("show");
+        startSlideshow();
+      }
+
+      function enterShow() {
+        const introScreen = document.getElementById("introScreen");
+        const toggleBtn = document.getElementById("musicToggle");
+        const nextStageBtn = document.getElementById("nextStageBtn");
+
+        introScreen.classList.add("hidden");
+        nextStageBtn.classList.add("show");
+        startSlideshow();
+        playCreditsMusic()
+          .then(() => {
+            toggleBtn.textContent = "🔊";
+            toggleBtn.classList.remove("muted");
+          })
+          .catch(function (error) {
+            console.log("Could not start music:", error);
+            toggleBtn.textContent = "🔇";
+            toggleBtn.classList.add("muted");
+          });
+      }
+
+      function toggleMusic() {
+        const music = document.getElementById("creditsMusic");
+        const toggleBtn = document.getElementById("musicToggle");
+
+        if (music.paused) {
+          music
+            .play()
+            .then(() => {
+              toggleBtn.textContent = "🔊";
+              toggleBtn.classList.remove("muted");
+            })
+            .catch(function (error) {
+              console.log("Audio play failed:", error);
+              alert(
+                "Không thể phát nhạc. Vui lòng kiểm tra file nhạc hoặc cho phép autoplay trên trình duyệt.",
+              );
+            });
+        } else {
+          music.pause();
+          toggleBtn.textContent = "🔇";
+          toggleBtn.classList.add("muted");
+        }
+      }
+
+      function goToWishPortal() {
+        window.location.href = "./wish-qr.html";
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const music = document.getElementById("creditsMusic");
+        const creditsContent = document.querySelector(".credits-content");
+        music.pause();
+        music.currentTime = 0;
+
+        updateSlideshowMetrics();
+
+        const videos = document.querySelectorAll(".credits-content video");
+        videos.forEach((video) => {
+          video.pause();
+          video.currentTime = 0;
+        });
+      });
+
+      window.addEventListener("resize", updateSlideshowMetrics);
+    </script>
+  </body>
+</html>

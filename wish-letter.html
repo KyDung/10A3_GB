@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lá Thư Dành Riêng</title>
+    <link rel="stylesheet" href="./wish-pages.css" />
+  </head>
+  <body class="letter-page-body">
+    <main class="page-shell">
+      <section class="letter-card">
+        <div class="letter-inner">
+          <p class="eyebrow">Lá thư dành riêng</p>
+          <h1 id="letterTitle" class="section-title">
+            Đang mở lời nhắn cho bạn...
+          </h1>
+          <p id="letterSubtitle" class="section-copy">
+            Hệ thống đang tìm lời nhắn phù hợp theo tên của bạn.
+          </p>
+
+          <div id="letterRevealStage" class="letter-reveal-stage">
+            <div class="letter-envelope">
+              <div class="letter-envelope-shadow"></div>
+              <div class="letter-envelope-back"></div>
+              <div class="letter-envelope-front"></div>
+              <div class="letter-envelope-flap"></div>
+              <div class="letter-paper">
+                <div id="recipientChip" class="recipient-chip">
+                  Đang tải dữ liệu...
+                </div>
+                <div id="letterBody" class="letter-body"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <a class="button-link secondary" href="./wish-form.html">
+              Nhập tên lại
+            </a>
+            <a class="button-link secondary" href="./wish-qr.html">
+              Quay lại QR
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./wish-data.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const queryName = params.get("name") || "";
+      const letterTitle = document.getElementById("letterTitle");
+      const letterSubtitle = document.getElementById("letterSubtitle");
+      const recipientChip = document.getElementById("recipientChip");
+      const letterBody = document.getElementById("letterBody");
+      const letterRevealStage = document.getElementById("letterRevealStage");
+
+      async function renderLetter() {
+        if (!queryName.trim()) {
+          letterTitle.textContent = "Bạn chưa nhập tên";
+          letterSubtitle.textContent =
+            "Hãy quay lại trang trước và nhập đầy đủ họ và tên để mở lá thư riêng.";
+          recipientChip.textContent = "Không có dữ liệu";
+          letterBody.textContent = "";
+          return;
+        }
+
+        try {
+          const wishEntries = await window.WishData.loadWishEntries();
+          const matchedWish = window.WishData.findWishByName(
+            wishEntries,
+            queryName,
+          );
+
+          if (!matchedWish) {
+            letterTitle.textContent = "Không tìm thấy lời nhắn phù hợp";
+            letterSubtitle.textContent =
+              "Bạn hãy quay lại và nhập đúng đầy đủ họ và tên của mình nhé.";
+            recipientChip.textContent = queryName;
+            letterBody.textContent = "";
+            return;
+          }
+
+          letterTitle.textContent = `Lá thư gửi tới ${matchedWish.name}`;
+          letterSubtitle.textContent = "Đây là lời nhắn riêng dành cho bạn <3";
+          recipientChip.textContent = matchedWish.name;
+          letterBody.textContent = matchedWish.message;
+        } catch (error) {
+          letterTitle.textContent = "Không mở được lời nhắn";
+          letterSubtitle.textContent =
+            "Có lỗi khi tải dữ liệu lời chúc. Vui lòng thử lại sau.";
+          recipientChip.textContent = "Tải dữ liệu thất bại";
+          letterBody.textContent = "";
+        }
+      }
+
+      window.addEventListener("load", function () {
+        window.setTimeout(function () {
+          letterRevealStage.classList.add("opened");
+        }, 220);
+      });
+
+      renderLetter();
+    </script>
+  </body>
+</html>

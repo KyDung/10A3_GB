@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quét QR Lời Chúc</title>
+    <link rel="stylesheet" href="./wish-pages.css" />
+  </head>
+  <body class="qr-page-body">
+    <main class="page-shell qr-page-shell">
+      <section class="hero-card qr-portal-card">
+        <div class="banner-stage">
+          <img
+            class="banner-photo"
+            src="./img/wish-banner.jpg"
+            alt="Banner kỷ niệm"
+            onerror="handleMediaError(this)"
+          />
+          <div class="media-fallback banner-fallback">
+            Thêm ảnh banner tại <strong>`./img/wish-banner.jpg`</strong>
+          </div>
+          <div class="hero-overlay"></div>
+        </div>
+
+        <div class="hero-panel">
+          <div class="glass-panel qr-layout-panel">
+            <div class="qr-copy-block">
+              <p class="eyebrow">Cổng Lời Chúc 10A3</p>
+              <h1 class="hero-title">Quét mã để mở lời nhắn dành riêng cho bạn</h1>
+              <p class="hero-copy">
+                Mã QR bên phải được tạo tự động theo link hiện tại của website,
+                nên khi đổi host hoặc đổi domain thì không cần làm lại ảnh QR.
+              </p>
+
+              <div class="qr-meta">
+                <p class="qr-meta-label">QR đang trỏ tới</p>
+                <a id="qrTargetLink" class="qr-link" href="./wish-form.html">
+                  ./wish-form.html
+                </a>
+                <p class="qr-hint">
+                  Người dùng quét mã sẽ được đưa thẳng tới trang nhập họ và tên.
+                </p>
+              </div>
+
+              <div class="action-row qr-action-row">
+                <a
+                  id="openWishFormBtn"
+                  class="button-link primary"
+                  href="./wish-form.html"
+                >
+                  Mở trang nhập tên
+                </a>
+                <a class="button-link secondary" href="./index.html">
+                  Quay lại slideshow
+                </a>
+              </div>
+            </div>
+
+            <div class="qr-code-block">
+              <div class="qr-avatar-frame">
+                <div class="qr-avatar-inner">
+                  <img
+                    id="qrImage"
+                    class="qr-avatar"
+                    alt="Mã QR lời chúc"
+                    onerror="handleQrError(this)"
+                  />
+                  <div class="media-fallback qr-avatar-fallback">
+                    Không tạo được QR tự động. Bạn vẫn có thể mở trực tiếp bằng
+                    nút bên trái.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      function handleMediaError(element) {
+        element.style.display = "none";
+
+        if (element.nextElementSibling) {
+          element.nextElementSibling.classList.add("show");
+        }
+      }
+
+      function handleQrError(element) {
+        handleMediaError(element);
+      }
+
+      (function initAutoQr() {
+        const targetUrl = new URL("./wish-form.html", window.location.href);
+        const qrImage = document.getElementById("qrImage");
+        const qrTargetLink = document.getElementById("qrTargetLink");
+        const openWishFormBtn = document.getElementById("openWishFormBtn");
+        const qrServiceUrl =
+          "https://api.qrserver.com/v1/create-qr-code/?size=720x720&data=" +
+          encodeURIComponent(targetUrl.href);
+
+        qrTargetLink.href = targetUrl.href;
+        qrTargetLink.textContent = targetUrl.href;
+        openWishFormBtn.href = targetUrl.href;
+        qrImage.src = qrServiceUrl;
+      })();
+    </script>
+  </body>
+</html>
